@@ -58,23 +58,95 @@ async function fetchJson(url, options, onCancel) {
  *  a promise that resolves to a possibly empty array of reservation saved in the database.
  */
 
+//CRUDL
+export async function createReservation(reservation, signal) {
+ const url = new URL(`${API_BASE_URL}/reservations`);
+ const options = {
+   method: "POST",
+   headers,
+   body: JSON.stringify({ data: reservation }),
+   signal,
+ };
+ return await fetchJson(url, options, []);
+}
+
+
+export async function createTable(table, signal) {
+ const url = new URL(`${API_BASE_URL}/tables`);
+ const options = {
+   method: "POST",
+   headers,
+   body: JSON.stringify({ data: table }),
+   signal,
+ };
+ return await fetchJson(url, options, []);
+}
+
+
+export async function seatReservation(table_id, reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/tables/${table_id}/seat`);
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: { reservation_id: reservation_id } }),
+    signal,
+  };
+  return await fetchJson(url, options, []);
+}
+
+export async function unassignTable(table_id, reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/tables/${table_id}/seat`);
+  const options = {
+    method: "DELETE",
+    headers,
+    body: JSON.stringify({ data: { reservation_id } }),
+    signal,
+  };
+  return await fetchJson(url, options, []);
+}
+
+export async function cancelReservation(reservation_id) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}/status`);
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: { status: "cancelled" } }),
+  };
+  return await fetchJson(url, options, []);
+}
+
 export async function listReservations(params, signal) {
-  const url = new URL(`${API_BASE_URL}/reservations`);
-  Object.entries(params).forEach(([key, value]) =>
-    url.searchParams.append(key, value.toString())
-  );
+ const url = new URL(`${API_BASE_URL}/reservations`);
+ Object.entries(params).forEach(([key, value]) =>
+   url.searchParams.append(key, value.toString())
+ );
+ return await fetchJson(url, { headers, signal }, [])
+   .then(formatReservationDate)
+   .then(formatReservationTime);
+}
+
+
+export async function listTables(signal) {
+ const url = new URL(`${API_BASE_URL}/tables`);
+ return await fetchJson(url, { headers, signal }, []);
+}
+
+
+//Other Functions
+export async function findReservation(reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
   return await fetchJson(url, { headers, signal }, [])
     .then(formatReservationDate)
     .then(formatReservationTime);
 }
 
-export async function createReservation(reservation, signal) {
-  const url = new URL(`${API_BASE_URL}/reservations`);
+export async function modifyReservation(id, res, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${id}`);
   const options = {
-    method: "POST",
+    method: "PUT",
     headers,
-    body: JSON.stringify({ data: reservation }),
+    body: JSON.stringify({ data: res }),
     signal,
   };
-  return await fetchJson(url, options, reservation);
+  return await fetchJson(url, options, []);
 }
