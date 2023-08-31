@@ -208,10 +208,25 @@ function validStatus(req, res, next) {
   }
 }
 
+function validMobileNumber(req, res, next){
+  const digitsOnly= req.body.data.mobile_number.split("-").join("");
+  let isnum = /^\d+$/.test(digitsOnly);
+  if (isnum === false){
+    next({
+      status: 400,
+      message:
+        "invalid mobile number",
+    });
+  } else {
+    next();
+  }
+}
+
 module.exports = {
   create: [
     hasValidProperties,
     isValidDay,
+    validMobileNumber,
     isBooked,
     asyncErrorBoundary(create),
   ],
@@ -220,6 +235,7 @@ module.exports = {
   update: [
     asyncErrorBoundary(reservationExists),
     hasValidProperties,
+    validMobileNumber,
     asyncErrorBoundary(update),
   ],
   updateStatus: [

@@ -45,7 +45,7 @@ export default function Form({
           </div>
           <div className="pb-1">
             <input
-              type="tel"
+              type="text"
               name="mobile_number"
               className="form-control"
               id="mobile_number"
